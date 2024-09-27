@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <style>
+        body {
+            background-image: url("image.png");
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Генератор паролей и логинов</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #f0f0f0;
+    }
+
+    .container {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 10px; /* Уменьшение радиуса для более современного вида */
+      box-shadow: 0 10px 50px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="number"] {
+      width: 70px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      margin-left: 10px;
+    }
+
+    button {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0069d9;
+    }
+
+    #password, #login {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #eee;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      text-align: center;
+      width: 300px;
+      word-break: break-all;
+    }
+
+    .options {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    #strength {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .strong {
+      color: green;
+    }
+    .medium {
+      color: orange;
+    }
+    .weak {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Генератор паролей и логинов</h1>
+
+    <h2>Генератор паролей</h2>
+    <div class="options">
+      <label for="length">Длина пароля:</label>
+      <input type="number" id="length" min="8" value="12">
+    </div>
+    <div class="options">
+      <label><input type="checkbox" id="includeUppercase" checked> Заглавные буквы</label>
+      <label><input type="checkbox" id="includeNumbers" checked> Цифры</label>
+      <label><input type="checkbox" id="includeSymbols" checked> Символы</label>
+    </div>
+    <button id="generate">Сгенерировать пароль</button>
+    <div id="password"></div>
+    <div id="strength"></div>
+    <button id="copy">Скопировать в буфер обмена</button>
+
+    <h2>Генератор логинов</h2>
+    <div class="options">
+      <label for="loginLength">Длина логина:</label>
+      <input type="number" id="loginLength" min="5" value="8">
+    </div>
+    <div class="options">
+      <label for="domainSelect">Домен:</label>
+      <select id="domainSelect">
+        <option value="@mail.ru">@mail.ru</option>
+        <option value="@yandex.ru">@yandex.ru</option>
+        <option value="@gmail.com">@gmail.com</option>
+        <option value="@bk.ru">@bk.ru</option>
+      </select>
+    </div>
+    <button id="generateLogin">Сгенерировать логин</button>
+    <div id="login"></div>
+    <button id="copyLogin">Скопировать логин в буфер обмена</button>
+  </div>
+
+  <script>
+    const generateBtn = document.getElementById('generate');
+    const passwordDisplay = document.getElementById('password');
+    const lengthInput = document.getElementById('length');
+    const strengthDisplay = document.getElementById('strength');
+    const copyBtn = document.getElementById('copy');
+
+    // Генерация паролей
+    generateBtn.addEventListener('click', () => {
+      const length = parseInt(lengthInput.value);
+      const includeUppercase = document.getElementById('includeUppercase').checked;
+      const includeNumbers = document.getElementById('includeNumbers').checked;
+      const includeSymbols = document.getElementById('includeSymbols').checked;
+
+      const password = generatePassword(length, includeUppercase, includeNumbers, includeSymbols);
+      passwordDisplay.textContent = password;
+
+      strengthDisplay.textContent = evaluatePasswordStrength(password);
+    });
+
+    function generatePassword(length, includeUppercase, includeNumbers, includeSymbols) {
+      let characters = 'abcdefghijklmnopqrstuvwxyz';
+      if (includeUppercase) characters += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      if (includeNumbers) characters += '0123456789';
+      if (includeSymbols) characters += '!@#$%^&*()_+-={}[]|;\':"<>,.?/';
+
+      let password = '';
+      for (let i = 0; i < length; i++) {
+        password += characters.charAt(Math.floor(Math.random() * characters.length));
+      }
+      return password;
+    }
+
+    function evaluatePasswordStrength(password) {
+      let strength = 'Слабый';
+      if (password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[!@#$%^&*]/.test(password)) {
+        strength = 'Сильный';
+      } else if (password.length >= 8) {
+        strength = 'Средний';
+      }
+      return strength;
+    }
+
+    // Генерация логинов
+    const loginDisplay = document.getElementById('login');
+    const loginLengthInput = document.getElementById('loginLength');
+    const generateLoginBtn = document.getElementById('generateLogin');
+    const copyLoginBtn = document.getElementById('copyLogin');
+
+    generateLoginBtn.addEventListener('click', () => {
+      const loginLength = parseInt(loginLengthInput.value);
+      const domain = document.getElementById('domainSelect').value;
+      const login = generateLogin(loginLength) + domain;
+      loginDisplay.textContent = login;
+    });
+
+    function generateLogin(length) {
+      let characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      let login = '';
+      for (let i = 0; i < length; i++) {
+        login += characters.charAt(Math.floor(Math.random() * characters.length));
+      }
+      return login;
+    }
+
+    // Копирование в буфер обмена
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(passwordDisplay.textContent).then(() => {
+        alert('Пароль скопирован в буфер обмена!');
+      });
+    });
+
+    copyLoginBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(loginDisplay.textContent).then(() => {
+        alert('Логин скопирован в буфер обмена!');
+      });
+    });
+  </script>
+</body>
+</html>
